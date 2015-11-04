@@ -1,7 +1,16 @@
 doctype html
-html
+html(lang='ko')
   head
-    title= title
+    block title
+      title=title
+    meta(charset='UTF-8')
+
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
+    block top-nav
+      include ./includes/topnav
+
     block content
+
+    block footer
+      include ./includes/footer
