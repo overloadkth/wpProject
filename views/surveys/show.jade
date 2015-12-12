@@ -1,0 +1,13 @@
+extends ../layout
+  
+block content
+  .container
+    h1= survey.title
+    h5= survey.createdAt
+    h3
+    .well= survey.content
+    
+  .container
+    h3 질문 목록 (#{survey.numQuestion})
+    
+    a.btn.btn-default(href='/surveys/') 목록
