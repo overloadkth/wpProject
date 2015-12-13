@@ -12,8 +12,8 @@ block content
         label(for='title') 설문조사 제목
         input.form-control(type='title', id='title', name='title', value=survey.title)
       .form-group
-        label(for='content') 설문조사 설명
-        textarea.form-control(id='content', name='content')= survey.content
+        label(for='comment') 설문조사 설명
+        textarea.form-control(id='comment', name='comment')= survey.comment
 
       div.form-actions
         a.btn.btn-default(href='javascript:window.history.back();') 뒤로 

@@ -4,8 +4,15 @@ var mongoose = require('mongoose'),
 
 var schema = new Schema({
   type: {type: String, required: true, trim: true},
-  content: {type: String, required: true, trim: true},
-  surveyid: {type: Schema.Types.ObjectId, required: true, trim: true}
+  surveyid: {type: Schema.Types.ObjectId, required: true, trim: true},
+  content: {type: String, trim: true},
+  selection: [{
+    selection1: {type: String},
+    selection2: {type: String},
+    selection3: {type: String},
+    selection4: {type: String},
+    selection5: {type: String}
+  }]
 }, {
   toJSON: {virtuals: true},
   toObject: {virtuals: true}
