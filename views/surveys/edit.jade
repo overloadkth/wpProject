@@ -1,0 +1,33 @@
+extends ../layout
+
+block content
+  .container
+    h1.page-header 질문 수정
+      
+    form(action = (question.id) ? "/surveys/question/#{question.id}?_method=PUT" : "/surveys", method='POST')
+      if question.type === '주관식'
+        .form-group
+          label(for='content') 질문
+            input.form-control(type='content', id='content', name='content', value=question.content)
+            
+      if question.type === '의견'
+        .form-group
+          label(for='content') 질문
+            input.form-control(type='content', id='content', name='content', value=question.content)
+            
+      if question.type === '객관식'
+        .form-group
+          label(for='content') 질문
+            input.form-control(type='content', id='content', name='content', value=question.content)
+        .form-group
+          label(for='select') 보기
+            input.form-control(type='select', id='select1', name='select1', value=question.select1)
+            input.form-control(type='select', id='select2', name='select2', value=question.select1)
+            input.form-control(type='select', id='select3', name='select3', value=question.select1)
+            input.form-control(type='select', id='select4', name='select4', value=question.select1)
+            input.form-control(type='select', id='select5', name='select5', value=question.select1)
+            
+    
+      a.btn.btn-default(href='javascript:window.history.back();') 뒤로 
+      | 
+      button.btn.btn-primary(type='submit') 완료

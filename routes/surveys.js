@@ -1,7 +1,8 @@
 var express = require('express'),
     User = require('../models/User'),
     Survey = require('../models/Survey'),
-    Question = require('../models/Question');
+    Question = require('../models/Question'),
+    Answer = require('../models/Answer');
 var router = express.Router();
 
 function needAuth(req, res, next) {
@@ -23,7 +24,7 @@ router.get('/', needAuth, function(req, res, next) {
   });
 });
 
-/* Make New */
+// New Survey
 router.get('/new', needAuth, function(req, res, next) {
   res.render('surveys/new', {survey: {}});
 });
@@ -42,13 +43,13 @@ router.post('/', needAuth, function(req, res, next) {
   });
 });
 
-/* Show */
+// Show Survey
 router.get('/:id', needAuth, function(req, res, next) {
   Survey.findById(req.params.id, function(err, survey) {
     if (err) {
       return next(err);
     }
-    Question.find({survey_id: survey.id}, function(err, questions) {
+    Question.find({surveyid: survey.id}, function(err, questions) {
       if (err) {
         return next(err);
       }
@@ -57,7 +58,7 @@ router.get('/:id', needAuth, function(req, res, next) {
   });
 });
 
-/* Edit */
+// Edit Survey
 router.get('/:id/edit', needAuth, function(req, res, next) {
   Survey.findById(req.params.id, function(err, survey) {
     if (err) {
@@ -84,13 +85,13 @@ router.put('/:id', needAuth, function(req, res, next) {
   });
 });
 
-/* Delete */
+// Delete Survey
 router.delete('/:id', needAuth, function(req, res, next) {
   Survey.findOneAndRemove(req.params.id, function(err) {
     if (err) {
       return next(err);
     }
-    Question.find({survey_id: req.params.id}).remove(function(err, questions) {
+    Question.find({surveyid: req.params.id}).remove(function(err, questions) {
       if (err) {
         return next(err);
       }
@@ -99,6 +100,32 @@ router.delete('/:id', needAuth, function(req, res, next) {
   });
 });
 
+// New Question
+router.post('/:id/questions', function(req, res, next) {
+  var question = new Question({
+    surveyid: req.params.id,
+    content: req.body.content,
+    type: req.body.type,
+    select1: req.body.select1,
+    select2: req.body.select2,
+    select3: req.body.select3,
+    select4: req.body.select4,
+    select5: req.body.select5
+  });
+  question.save(function(err){
+    if (err) {
+      return next(err);
+    }
+    Survey.findByIdAndUpdate(req.params.id, {$inc: {numQuestions: 1}}, function(err, survey) {
+      if (err) {
+        return next(err);
+      }
+      res.redirect('/surveys/' + req.params.id);
+    });
+  });
+});
+
+//  Edit Question
 router.get('/question/:id/edit', function(req, res, next) {
   Question.findById(req.params.id, function(err, question) {
     if (err) {
@@ -114,58 +141,90 @@ router.put('/question/:id', function(req, res, next) {
       return next(err);
     }
     question.content = req.body.content;
-    question.selection[0].selection1 = req.body.selection1;
-    question.selection[0].selection2 = req.body.selection2;
-    question.selection[0].selection3 = req.body.selection3;
-    question.selection[0].selection4 = req.body.selection4;
-    question.selection[0].selection5 = req.body.selection5;
+    question.select1 = req.body.select1;
+    question.select2 = req.body.select2;
+    question.select3 = req.body.select3;
+    question.select4 = req.body.select4;
+    question.select5 = req.body.select5;
 
     question.save(function(err) {
       if (err) {
         return next(err);
       }
-      res.redirect('/surveys/' + question.survey_id);
+      res.redirect('/surveys/' + question.surveyid);
     });
   });
 });
 
-router.post('/:id/questions', function(req, res, next) {
-  var question = new Question({
-    surveyid: req.params.id,
-    content: req.body.content,
-    type: req.body.type
-  });
-  question.selection.push({
-    selection1: req.body.selection1,
-    selection2: req.body.selection2,
-    selection3: req.body.selection3,
-    selection4: req.body.selection4,
-    selection5: req.body.selection5
-  });
-
-  question.save(function(err){
-    if (err) {
-      return next(err);
-    }
-    Survey.findByIdAndUpdate(req.params.id, {$inc: {numQuestion: 1}}, function(err, survey) {
-      if (err) {
-        return next(err);
-      }
-      res.redirect('/surveys/' + req.params.id);
-    });
-  });
-});
-
+// Delete Question
 router.delete('/question/:id', function(req, res, next) {
   Question.findOneAndRemove({_id: req.params.id}, function(err, question) {
     if (err) {
       return next(err);
     }
-    Survey.findByIdAndUpdate(question.survey_id, {$inc: {numQuestion: -1}}, function(err) {
+    Survey.findByIdAndUpdate(question._surveyid, {$inc: {numQuestions: -1}}, function(err) {
       if (err) {
         return next(err);
       }
-      res.redirect('/surveys/' + question.survey_id);
+      res.redirect('/surveys/' + question.surveyid);
+    });
+  });
+});
+
+// New Ansewer
+router.get('/:id/answer', function(req, res, next) {
+  Survey.findById(req.params.id, function(err, survey) {
+    if (err) {
+      return next(err);
+    }
+    Question.find({surveyid: survey.id}, function(err, questions) {
+      if (err) {
+        return next(err);
+      }
+      res.render('surveys/answer', {survey:survey, questions: questions});
+    });
+  });
+});
+
+router.post('/:id/answer', function(req, res, next) {
+  Question.findById(req.params.id, function(err, survey) {
+    if (err) {
+      return next(err);
+    }
+    var answer = new Answer({
+      surveyid: req.params.id,
+      questionid: req.params.id,
+      answer: req.body.answer,
+      select1: req.body.select1,
+      select2: req.body.select2,
+      select3: req.body.select3,
+      select4: req.body.select4,
+      select5: req.body.select5
+    });
+    answer.save(function(err){
+      if (err) {
+        return next(err);
+      }
+    });
+    res.redirect('/surveys/' + req.params.id);
+  });
+});
+
+router.get(':/id/result', function(req, res, next) {
+  Survey.findById(req.params.id, function(err, survey) {
+    if(err) {
+      return next(err);
+    }
+    Question.findById({surveyid: survey.id}, function(err, questions) {
+      if(err) {
+        return next(err);
+      }
+      Answer.findById({surveyid: survey.id}, function(err, answers) {
+        if(err) {
+          return next(err);
+        }
+        res.render('surveys/result', {survey:survey, questions:questions, answers:answers});
+      });
     });
   });
 });

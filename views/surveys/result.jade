@@ -1,0 +1,40 @@
+extends ../layout
+
+block content
+  .container
+    h1= survey.title
+    h5= survey.createdAt 
+    h3
+    .well= survey.comment
+    
+    .form-group
+      h1 설문 결과
+      br
+      each question in questions
+        if question.type === '주관식'
+          input.form-control(type='content', id='content', name='content', value=question.content)
+          each answer in answers
+            if answer.questionid == question.id
+              .form-group  
+                input.form-control(type='answer', id='answer', name='answer', value=answer.answer)
+            
+        if question.type === '의견'
+          input.form-control(type='content', id='content', name='content', value=question.content)
+          each answer in answers
+            if answer.questionid == question.id
+              .form-group  
+                input.form-control(type='answer', id='answer', name='answer', value=answer.answer)
+        //- if question.type === '객관식'
+        //-   input.form-control(type='content', id='content', name='content', value=question.content)
+        //-   each answer in answers
+        //-     if answer.questionid == question.id
+        //-       .form-group
+        //-         input.form-control(type='answer', id='answer', name='answer', value=answer.answer)
+        //-           label
+        //-             span=question.select1
+        //-             span=question.select2
+        //-             span=question.select3
+        //-             span=question.select4
+        //-             span=question.select5
+                  
+      a.btn.btn-default(href='javascript:window.history.back();') 뒤로 
